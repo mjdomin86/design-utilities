@@ -1,0 +1,109 @@
+:root {
+    --primary: #1f4e79;
+    --border: #d5dbe3;
+    --error: #b3261e;
+    --muted: #6b7280;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    color: #1f2937;
+    background: #f6f8fa;
+}
+
+header {
+    background: var(--primary);
+    color: #fff;
+    padding: 1rem 2rem 0;
+}
+
+header h1 { margin: 0 0 0.75rem; font-size: 1.3rem; }
+
+nav { display: flex; gap: 0.25rem; }
+
+.tab-button {
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+}
+
+.tab-button.active { background: #f6f8fa; color: var(--primary); font-weight: 600; }
+
+main { padding: 1.5rem 2rem; max-width: 960px; }
+
+.tab { display: none; }
+.tab.active { display: block; }
+
+form {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.form-row { margin-bottom: 0.9rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.form-row label { font-weight: 600; font-size: 0.85rem; }
+.form-row small, .muted { color: var(--muted); }
+
+input, select {
+    padding: 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 0.9rem;
+    max-width: 28rem;
+}
+
+button[type="submit"] {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 0.55rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.status { margin: 0.75rem 0; font-size: 0.9rem; }
+.status.error { color: var(--error); font-weight: 600; }
+
+.result-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.result-title { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+.badge {
+    background: var(--primary);
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+table { border-collapse: collapse; width: 100%; margin-top: 0.5rem; font-size: 0.85rem; }
+th, td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; }
+th { background: #eef2f6; }
+tr.failed td { color: var(--error); }
+
+pre {
+    background: #f3f4f6;
+    padding: 0.5rem;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-size: 0.8rem;
+}
+
+code { background: #f3f4f6; padding: 0.05rem 0.3rem; border-radius: 3px; font-size: 0.85em; }
+h4 { margin: 0.75rem 0 0.25rem; }

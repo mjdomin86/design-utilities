@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flowable Design Backup &amp; Search</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>Flowable Design Backup &amp; Search</h1>
+    <nav>
+        <button class="tab-button active" data-tab="search">Model Search</button>
+        <button class="tab-button" data-tab="operations">Operation Lookup</button>
+        <button class="tab-button" data-tab="backup">Backup</button>
+    </nav>
+</header>
+
+<main>
+    <section id="tab-search" class="tab active">
+        <form id="search-form">
+            <div class="form-row">
+                <label for="search-workspace">Workspace</label>
+                <select id="search-workspace" required></select>
+            </div>
+            <div class="form-row">
+                <label for="search-model-types">Model types</label>
+                <select id="search-model-types" multiple size="8" required></select>
+                <small>Cmd/Ctrl-click for multiple</small>
+            </div>
+            <div class="form-row">
+                <label for="search-condition">Condition</label>
+                <select id="search-condition">
+                    <option value="CONTAINS">contains</option>
+                    <option value="NOT_CONTAINS">does not contain</option>
+                    <option value="EQUALS">equals (exact token)</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="search-term">Term</label>
+                <input id="search-term" type="text" placeholder="e.g. GEN-902" required>
+            </div>
+            <div class="form-row">
+                <label for="search-element-type">BPMN element type <em>(optional)</em></label>
+                <input id="search-element-type" type="text"
+                       placeholder="e.g. serviceTask or service-registry">
+            </div>
+            <button type="submit">Search</button>
+        </form>
+        <div id="search-status" class="status"></div>
+        <div id="search-results"></div>
+    </section>
+
+    <section id="tab-operations" class="tab">
+        <form id="operations-form">
+            <div class="form-row">
+                <label for="op-workspace">Workspace</label>
+                <select id="op-workspace" required></select>
+            </div>
+            <div class="form-row">
+                <label for="op-app">App</label>
+                <select id="op-app" required></select>
+            </div>
+            <div class="form-row">
+                <label for="op-method">HTTP method</label>
+                <select id="op-method">
+                    <option>GET</option>
+                    <option>POST</option>
+                    <option>PUT</option>
+                    <option>PATCH</option>
+                    <option>DELETE</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="op-path">Path</label>
+                <input id="op-path" type="text" placeholder="/api/customers" required>
+            </div>
+            <button type="submit">Find operation</button>
+        </form>
+        <div id="operations-status" class="status"></div>
+        <div id="operations-results"></div>
+    </section>
+
+    <section id="tab-backup" class="tab">
+        <form id="backup-form">
+            <div class="form-row">
+                <label for="backup-workspace">Workspace</label>
+                <select id="backup-workspace" required></select>
+            </div>
+            <div class="form-row">
+                <label for="backup-target">Target directory</label>
+                <input id="backup-target" type="text" placeholder="/path/to/backups" required>
+            </div>
+            <button type="submit">Run backup</button>
+        </form>
+        <div id="backup-status" class="status"></div>
+        <div id="backup-results"></div>
+    </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

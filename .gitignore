@@ -1,0 +1,5 @@
+.idea/
+examples/
+swagger/
+target/
+.DS_Store
