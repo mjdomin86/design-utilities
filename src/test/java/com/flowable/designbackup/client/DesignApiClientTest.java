@@ -86,12 +86,63 @@ class DesignApiClientTest {
     }
 
     @Test
-    void getModelContentReturnsRawBody() {
-        server.expect(requestTo(BASE + "/workspaces/ws1/models/bpmn/creditCheck1/content"))
-                .andRespond(withSuccess("<definitions/>", MediaType.APPLICATION_XML));
+    void exportModelReturnsExportedFileAsString() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/models/bpmn/creditCheck1/export"))
+                .andRespond(withSuccess("<definitions/>".getBytes(),
+                        MediaType.APPLICATION_OCTET_STREAM));
+
+        assertThat(client.exportModel("ws1", "bpmn", "creditCheck1")).isEqualTo("<definitions/>");
+        server.verify();
+    }
+
+    @Test
+    void getModelContentExtractsStringContentFromModelDetails() {
+        // XML-based models (BPMN, CMMN, DMN) carry their definition as a string.
+        server.expect(requestTo(BASE + "/workspaces/ws1/models/bpmn/creditCheck1?includeContent=true"))
+                .andRespond(withSuccess("""
+                        {"id":"1","key":"creditCheck1","modelType":"bpmn","content":"<definitions/>"}
+                        """, MediaType.APPLICATION_JSON));
 
         assertThat(client.getModelContent("ws1", "bpmn", "creditCheck1")).isEqualTo("<definitions/>");
         server.verify();
+    }
+
+    @Test
+    void getModelContentSerializesJsonObjectContent() {
+        // JSON-based models (service, form, ...) carry their definition as an object.
+        server.expect(requestTo(BASE + "/workspaces/ws1/models/service/svc1?includeContent=true"))
+                .andRespond(withSuccess("""
+                        {"id":"2","key":"svc1","modelType":"service",
+                         "content":{"type":"REST","operations":[]}}
+                        """, MediaType.APPLICATION_JSON));
+
+        assertThat(client.getModelContent("ws1", "service", "svc1"))
+                .isEqualTo("{\"type\":\"REST\",\"operations\":[]}");
+        server.verify();
+    }
+
+    @Test
+    void getAppModelContentUsesIncludeContentParameter() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/apps/app902/models/service/svc1?includeContent=true"))
+                .andRespond(withSuccess("""
+                        {"id":"2","key":"svc1","modelType":"service","content":{"type":"REST"}}
+                        """, MediaType.APPLICATION_JSON));
+
+        assertThat(client.getAppModelContent("ws1", "app902", "service", "svc1"))
+                .isEqualTo("{\"type\":\"REST\"}");
+        server.verify();
+    }
+
+    @Test
+    void getModelContentFailsClearlyWhenContentIsMissing() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/models/bpmn/creditCheck1?includeContent=true"))
+                .andRespond(withSuccess("""
+                        {"id":"1","key":"creditCheck1","modelType":"bpmn"}
+                        """, MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> client.getModelContent("ws1", "bpmn", "creditCheck1"))
+                .isInstanceOf(DesignApiException.class)
+                .hasMessageContaining("no content");
     }
 
     @Test

@@ -6,8 +6,10 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -70,19 +72,55 @@ public class DesignApiClient {
                 .build(workspaceKey, appKey));
     }
 
+    /**
+     * Downloads the model's exported file. For XML-based models (BPMN, CMMN,
+     * DMN) this is the XML definition, unlike the JSON returned by
+     * {@link #getModelContent}.
+     */
+    public String exportModel(String workspaceKey, String modelType, String modelKey) {
+        return execute("export " + modelType + " model '" + modelKey + "'", () -> {
+            byte[] bytes = restClient.get()
+                    .uri("/workspaces/{ws}/models/{type}/{key}/export", workspaceKey, modelType, modelKey)
+                    .retrieve()
+                    .body(byte[].class);
+            return bytes == null ? null : new String(bytes, StandardCharsets.UTF_8);
+        });
+    }
+
     public String getModelContent(String workspaceKey, String modelType, String modelKey) {
-        return execute("get content of " + modelType + " model '" + modelKey + "'", () -> restClient.get()
-                .uri("/workspaces/{ws}/models/{type}/{key}/content", workspaceKey, modelType, modelKey)
+        String action = "get content of " + modelType + " model '" + modelKey + "'";
+        JsonNode model = execute(action, () -> restClient.get()
+                .uri(uri -> uri.path("/workspaces/{ws}/models/{type}/{key}")
+                        .queryParam("includeContent", true)
+                        .build(workspaceKey, modelType, modelKey))
                 .retrieve()
-                .body(String.class));
+                .body(JsonNode.class));
+        return extractContent(model, action);
     }
 
     public String getAppModelContent(String workspaceKey, String appKey, String modelType, String modelKey) {
-        return execute("get content of " + modelType + " model '" + modelKey + "'", () -> restClient.get()
-                .uri("/workspaces/{ws}/apps/{app}/models/{type}/{key}/content",
-                        workspaceKey, appKey, modelType, modelKey)
+        String action = "get content of " + modelType + " model '" + modelKey + "'";
+        JsonNode model = execute(action, () -> restClient.get()
+                .uri(uri -> uri.path("/workspaces/{ws}/apps/{app}/models/{type}/{key}")
+                        .queryParam("includeContent", true)
+                        .build(workspaceKey, appKey, modelType, modelKey))
                 .retrieve()
-                .body(String.class));
+                .body(JsonNode.class));
+        return extractContent(model, action);
+    }
+
+    /**
+     * The model detail response carries the definition in its {@code content}
+     * field: a raw string for XML-based models (BPMN, CMMN, DMN) and a JSON
+     * object for the rest (service, form, ...).
+     */
+    private static String extractContent(JsonNode model, String action) {
+        JsonNode content = model == null ? null : model.get("content");
+        if (content == null || content.isNull()) {
+            throw new DesignApiException(
+                    "Flowable Design API returned no content (" + action + ")", 0, null);
+        }
+        return content.isString() ? content.asString() : content.toString();
     }
 
     private List<ModelSummary> fetchAllPages(Function<Integer, Function<UriBuilder, URI>> uriForStart) {

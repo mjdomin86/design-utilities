@@ -18,17 +18,21 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
- * Element-level search inside BPMN XML: every identifiable element (any
- * element carrying an {@code id} attribute below the process) is evaluated
- * individually against the condition, so e.g. NOT_CONTAINS returns each
- * element of the selected type that does not mention the term.
+ * Element-level search inside BPMN and CMMN XML: every identifiable element
+ * (any element carrying an {@code id} attribute below the root containers) is
+ * evaluated individually against the condition, so e.g. NOT_CONTAINS returns
+ * each element of the selected type that does not mention the term.
  */
 @Component
 public class BpmnElementSearcher {
 
-    private static final String FLOWABLE_NS = "http://flowable.org/bpmn";
+    private static final List<String> FLOWABLE_NAMESPACES =
+            List.of("http://flowable.org/bpmn", "http://flowable.org/cmmn");
+    private static final Set<String> CONTAINER_ELEMENTS =
+            Set.of("definitions", "process", "case", "casePlanModel");
 
     public List<ElementMatch> findMatchingElements(String bpmnXml, SearchCondition condition, String term,
             String elementTypeFilter) {
@@ -48,10 +52,7 @@ public class BpmnElementSearcher {
     }
 
     private boolean isSearchableElement(Element element) {
-        String localName = element.getLocalName();
-        return element.hasAttribute("id")
-                && !"definitions".equals(localName)
-                && !"process".equals(localName);
+        return element.hasAttribute("id") && !CONTAINER_ELEMENTS.contains(element.getLocalName());
     }
 
     private boolean matchesElementType(Element element, String filter) {
@@ -72,9 +73,11 @@ public class BpmnElementSearcher {
     }
 
     private String flowableAttribute(Element element, String name) {
-        String namespaced = element.getAttributeNS(FLOWABLE_NS, name);
-        if (namespaced != null && !namespaced.isEmpty()) {
-            return namespaced;
+        for (String namespace : FLOWABLE_NAMESPACES) {
+            String namespaced = element.getAttributeNS(namespace, name);
+            if (namespaced != null && !namespaced.isEmpty()) {
+                return namespaced;
+            }
         }
         String prefixed = element.getAttribute("flowable:" + name);
         return prefixed.isEmpty() ? null : prefixed;
@@ -93,7 +96,7 @@ public class BpmnElementSearcher {
             factory.setExpandEntityReferences(false);
             return factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Could not parse BPMN XML: " + e.getMessage(), e);
+            throw new IllegalArgumentException("Could not parse model XML: " + e.getMessage(), e);
         }
     }
 

@@ -64,7 +64,7 @@ class ModelSearchServiceTest {
     void bpmnModelsAreMatchedElementByElement() {
         when(client.listModels("ws1", "bpmn")).thenReturn(List.of(
                 new ModelSummary("1", "creditCheck1", "Credit check", "bpmn")));
-        when(client.getModelContent("ws1", "bpmn", "creditCheck1")).thenReturn(bpmnXml);
+        when(client.exportModel("ws1", "bpmn", "creditCheck1")).thenReturn(bpmnXml);
 
         SearchResponse response = service.search(new SearchRequest(
                 "ws1", List.of("bpmn"), SearchCondition.NOT_CONTAINS, "GEN-902", "serviceTask"));
@@ -76,10 +76,29 @@ class ModelSearchServiceTest {
     }
 
     @Test
+    void cmmnModelsAreMatchedElementByElementViaExport() throws Exception {
+        String cmmnXml;
+        try (var stream = ModelSearchServiceTest.class.getResourceAsStream("/fixtures/loanRequest.cmmn")) {
+            cmmnXml = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        when(client.listModels("ws1", "cmmn")).thenReturn(List.of(
+                new ModelSummary("1", "loanRequest", "Loan Request", "cmmn")));
+        when(client.exportModel("ws1", "cmmn", "loanRequest")).thenReturn(cmmnXml);
+
+        SearchResponse response = service.search(new SearchRequest(
+                "ws1", List.of("cmmn"), SearchCondition.CONTAINS, "Manual review of application", "humanTask"));
+
+        assertThat(response.matches()).hasSize(1);
+        assertThat(response.matches().getFirst().elements())
+                .extracting(ElementMatch::elementId)
+                .containsExactly("HumanTask_29");
+    }
+
+    @Test
     void bpmnModelWithoutMatchingElementsIsExcluded() {
         when(client.listModels("ws1", "bpmn")).thenReturn(List.of(
                 new ModelSummary("1", "creditCheck1", "Credit check", "bpmn")));
-        when(client.getModelContent("ws1", "bpmn", "creditCheck1")).thenReturn(bpmnXml);
+        when(client.exportModel("ws1", "bpmn", "creditCheck1")).thenReturn(bpmnXml);
 
         SearchResponse response = service.search(new SearchRequest(
                 "ws1", List.of("bpmn"), SearchCondition.CONTAINS, "GEN-902", "serviceTask"));

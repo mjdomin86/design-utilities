@@ -10,8 +10,8 @@ Design REST API (Java 21, Spring Boot 4.0.6).
    Trigger manually (`POST /api/backups`) or on a cron schedule.
 2. **Model search UI** — web UI at `http://localhost:8090/` to search a term across model
    types (BPMN, DMN, Form, …) with conditions *contains / not contains / equals*.
-   BPMN models are evaluated **element by element**, so "service registry tasks that do
-   NOT contain GEN-902" returns each individual task missing that reference.
+   BPMN and CMMN models are evaluated **element by element**, so "service registry tasks
+   that do NOT contain GEN-902" returns each individual task missing that reference.
 3. **Service operation lookup** — within one app, find the service model operation bound
    to an HTTP method + path; returns the service model key, operation key and all
    input/output parameters.
@@ -57,7 +57,7 @@ Search semantics:
 - `CONTAINS` / `NOT_CONTAINS` — substring match.
 - `EQUALS` — the term appears as an exact token (attribute value, id, word), e.g.
   `GEN-902` matches `key="GEN-902"` but not `GEN-9021`.
-- For BPMN, every element carrying an `id` is evaluated individually; the optional
+- For BPMN and CMMN, every element carrying an `id` is evaluated individually; the optional
   `elementType` narrows by tag name (`serviceTask`), `flowable:type` (`service-registry`)
   or `flowable:extensionId`.
 

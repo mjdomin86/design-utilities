@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +26,8 @@ public class ModelSearchService {
     private static final Logger log = LoggerFactory.getLogger(ModelSearchService.class);
     private static final int CONTENT_FETCH_CONCURRENCY = 4;
     private static final int SNIPPET_MAX_LENGTH = 200;
-    private static final String BPMN_MODEL_TYPE = "bpmn";
+    /** XML-based model types searched element by element via their export. */
+    private static final Set<String> XML_MODEL_TYPES = Set.of("bpmn", "cmmn");
 
     private final DesignApiClient designApiClient;
     private final BpmnElementSearcher bpmnElementSearcher;
@@ -57,7 +59,7 @@ public class ModelSearchService {
 
     private Optional<ModelMatch> matchModel(SearchRequest request, ModelContent content) {
         ModelSummary model = content.model();
-        if (BPMN_MODEL_TYPE.equals(model.modelType())) {
+        if (XML_MODEL_TYPES.contains(model.modelType())) {
             List<ElementMatch> elements = bpmnElementSearcher.findMatchingElements(
                     content.content(), request.condition(), request.term(), request.elementType());
             if (elements.isEmpty()) {
@@ -99,7 +101,12 @@ public class ModelSearchService {
 
     private ModelContent fetchContent(String workspaceKey, String modelType, ModelSummary model) {
         try {
-            return new ModelContent(model, designApiClient.getModelContent(workspaceKey, modelType, model.key()), false);
+            // BPMN/CMMN models are stored as Design-internal JSON; only the
+            // export carries the XML the element-level search needs.
+            String content = XML_MODEL_TYPES.contains(modelType)
+                    ? designApiClient.exportModel(workspaceKey, modelType, model.key())
+                    : designApiClient.getModelContent(workspaceKey, modelType, model.key());
+            return new ModelContent(model, content, false);
         } catch (Exception e) {
             log.warn("Could not fetch content of {} model '{}': {}", modelType, model.key(), e.getMessage());
             return new ModelContent(model, null, true);

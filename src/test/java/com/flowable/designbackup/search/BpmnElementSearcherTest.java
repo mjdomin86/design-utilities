@@ -11,14 +11,48 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BpmnElementSearcherTest {
 
     private static String bpmnXml;
+    private static String cmmnXml;
 
     private final BpmnElementSearcher searcher = new BpmnElementSearcher();
 
     @BeforeAll
-    static void loadFixture() throws Exception {
-        try (var stream = BpmnElementSearcherTest.class.getResourceAsStream("/fixtures/creditCheck1.bpmn")) {
-            bpmnXml = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+    static void loadFixtures() throws Exception {
+        bpmnXml = loadFixture("/fixtures/creditCheck1.bpmn");
+        cmmnXml = loadFixture("/fixtures/loanRequest.cmmn");
+    }
+
+    private static String loadFixture(String resource) throws Exception {
+        try (var stream = BpmnElementSearcherTest.class.getResourceAsStream(resource)) {
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         }
+    }
+
+    @Test
+    void cmmnElementsAreSearchableWithElementTypeFilter() {
+        List<ElementMatch> matches = searcher.findMatchingElements(
+                cmmnXml, SearchCondition.CONTAINS, "Manual review of application", "humanTask");
+
+        assertThat(matches).extracting(ElementMatch::elementId).containsExactly("HumanTask_29");
+        assertThat(matches.getFirst().elementType()).isEqualTo("humanTask");
+    }
+
+    @Test
+    void cmmnElementTypeFilterDistinguishesDefinitionFromPlanItem() {
+        // Both the milestone and its planItem carry the same name; the filter
+        // must only return the milestone definition.
+        List<ElementMatch> matches = searcher.findMatchingElements(
+                cmmnXml, SearchCondition.CONTAINS, "Waiting for user to upload documents", "milestone");
+
+        assertThat(matches).extracting(ElementMatch::elementId).containsExactly("Milestone_70");
+    }
+
+    @Test
+    void cmmnContainerElementsAreNotReportedAsMatches() {
+        // "Loan Request with auto AI" only appears on the <case> container.
+        List<ElementMatch> matches = searcher.findMatchingElements(
+                cmmnXml, SearchCondition.EQUALS, "Loan Request with auto AI", "case");
+
+        assertThat(matches).isEmpty();
     }
 
     @Test
