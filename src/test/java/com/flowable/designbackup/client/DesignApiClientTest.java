@@ -146,6 +146,48 @@ class DesignApiClientTest {
     }
 
     @Test
+    void listAllModelsOmitsModelTypeFilter() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/models?start=0&size=200"))
+                .andRespond(withSuccess("""
+                        {"data":[{"id":"1","key":"m1","name":"M1","modelType":"bpmn"}],
+                         "total":1,"start":0,"size":200}
+                        """, MediaType.APPLICATION_JSON));
+
+        assertThat(client.listAllModels("ws1")).extracting(ModelSummary::key).containsExactly("m1");
+        server.verify();
+    }
+
+    @Test
+    void getParentRelationsSummaryReturnsUsageCounts() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/models/service/svc1/parent-relations-summary"))
+                .andRespond(withSuccess("""
+                        {"usedInPackage":true,"packageCount":2,"modelsCount":3}
+                        """, MediaType.APPLICATION_JSON));
+
+        var summary = client.getParentRelationsSummary("ws1", "service", "svc1");
+
+        assertThat(summary.usedInPackage()).isTrue();
+        assertThat(summary.packageCount()).isEqualTo(2);
+        assertThat(summary.modelsCount()).isEqualTo(3);
+        server.verify();
+    }
+
+    @Test
+    void getParentRelationsReturnsPackageAwareRelations() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/models/form/form1/parent-relations"))
+                .andRespond(withSuccess("""
+                        [{"packageModelKey":"app902","packageModelName":"App 902",
+                          "modelKey":"proc1","modelName":"Process 1","modelType":"bpmn"}]
+                        """, MediaType.APPLICATION_JSON));
+
+        var relations = client.getParentRelations("ws1", "form", "form1");
+
+        assertThat(relations).hasSize(1);
+        assertThat(relations.getFirst().packageModelKey()).isEqualTo("app902");
+        server.verify();
+    }
+
+    @Test
     void wrapsHttpErrorsInDesignApiExceptionWithStatus() {
         server.expect(requestTo(BASE + "/workspaces/ws1/apps/app902/export?excludeChildReferences=false"))
                 .andRespond(withUnauthorizedRequest());

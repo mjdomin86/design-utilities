@@ -38,14 +38,16 @@ document.querySelectorAll('.tab-button').forEach((button) => {
 
 // --- Initial data ---
 function populateModelTypes() {
-    const select = document.getElementById('search-model-types');
-    select.innerHTML = MODEL_TYPES
+    document.getElementById('search-model-types').innerHTML = MODEL_TYPES
         .map((type) => `<option value="${type}" ${type === 'bpmn' ? 'selected' : ''}>${type}</option>`)
+        .join('');
+    document.getElementById('unused-model-types').innerHTML = MODEL_TYPES
+        .map((type) => `<option value="${type}">${type}</option>`)
         .join('');
 }
 
 async function populateWorkspaces() {
-    const selects = ['search-workspace', 'op-workspace', 'backup-workspace']
+    const selects = ['search-workspace', 'op-workspace', 'backup-workspace', 'unused-workspace']
         .map((id) => document.getElementById(id));
     try {
         const workspaces = await fetchJson('/api/workspaces');
@@ -118,9 +120,20 @@ function renderSearchResults(matches) {
                 <strong>${escapeHtml(match.modelName || match.modelKey)}</strong>
                 <code>${escapeHtml(match.modelKey)}</code>
             </div>
+            ${renderApps(match.apps)}
             ${match.snippet ? `<pre>${escapeHtml(match.snippet)}</pre>` : ''}
             ${match.elements.length ? renderElements(match.elements) : ''}
         </div>`).join('');
+}
+
+function renderApps(apps) {
+    if (!apps || !apps.length) {
+        return '<p class="muted">App: none (not in any app)</p>';
+    }
+    const labels = apps
+        .map((app) => `${escapeHtml(app.name || app.key)} (<code>${escapeHtml(app.key)}</code>)`)
+        .join(', ');
+    return `<p class="muted">App: ${labels}</p>`;
 }
 
 function renderElements(elements) {
@@ -220,6 +233,44 @@ function renderBackupResults(apps) {
         </tr>`).join('');
     document.getElementById('backup-results').innerHTML =
         `<table><thead><tr><th>App</th><th>Name</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// --- Unused models ---
+document.getElementById('unused-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const workspace = document.getElementById('unused-workspace').value;
+    const modelTypes = Array.from(document.getElementById('unused-model-types').selectedOptions)
+        .map((option) => option.value);
+    setStatus('unused-status', 'Scanning… this may take a while for large workspaces');
+    document.getElementById('unused-results').innerHTML = '';
+    try {
+        const query = modelTypes.length
+            ? '?' + modelTypes.map((type) => `modelTypes=${encodeURIComponent(type)}`).join('&')
+            : '';
+        const result = await fetchJson(
+            `/api/workspaces/${encodeURIComponent(workspace)}/unused-models${query}`);
+        setStatus('unused-status',
+            `${result.unusedModels.length} unused model(s) out of ${result.scannedModels} scanned`
+            + (result.erroredModels ? ` (${result.erroredModels} could not be checked)` : ''));
+        renderUnusedResults(result.unusedModels);
+    } catch (e) {
+        setStatus('unused-status', e.message, true);
+    }
+});
+
+function renderUnusedResults(models) {
+    if (!models.length) {
+        document.getElementById('unused-results').innerHTML = '';
+        return;
+    }
+    const rows = models.map((model) => `
+        <tr>
+            <td><span class="badge">${escapeHtml(model.modelType)}</span></td>
+            <td>${escapeHtml(model.modelName || '')}</td>
+            <td><code>${escapeHtml(model.modelKey)}</code></td>
+        </tr>`).join('');
+    document.getElementById('unused-results').innerHTML =
+        `<table><thead><tr><th>Type</th><th>Name</th><th>Key</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 populateModelTypes();

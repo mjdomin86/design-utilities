@@ -12,6 +12,7 @@
     <nav>
         <button class="tab-button active" data-tab="search">Model Search</button>
         <button class="tab-button" data-tab="operations">Operation Lookup</button>
+        <button class="tab-button" data-tab="unused">Unused Models</button>
         <button class="tab-button" data-tab="backup">Backup</button>
     </nav>
 </header>
@@ -79,6 +80,23 @@
         </form>
         <div id="operations-status" class="status"></div>
         <div id="operations-results"></div>
+    </section>
+
+    <section id="tab-unused" class="tab">
+        <form id="unused-form">
+            <div class="form-row">
+                <label for="unused-workspace">Workspace</label>
+                <select id="unused-workspace" required></select>
+            </div>
+            <div class="form-row">
+                <label for="unused-model-types">Model types <em>(optional — empty scans all)</em></label>
+                <select id="unused-model-types" multiple size="8"></select>
+                <small>Cmd/Ctrl-click for multiple; leave empty to scan every type</small>
+            </div>
+            <button type="submit">Find unused models</button>
+        </form>
+        <div id="unused-status" class="status"></div>
+        <div id="unused-results"></div>
     </section>
 
     <section id="tab-backup" class="tab">

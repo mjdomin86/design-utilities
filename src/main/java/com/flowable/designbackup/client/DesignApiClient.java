@@ -26,6 +26,9 @@ public class DesignApiClient {
     private static final ParameterizedTypeReference<DataResponse<ModelSummary>> MODEL_PAGE =
             new ParameterizedTypeReference<>() {
             };
+    private static final ParameterizedTypeReference<List<ModelRelationInfo>> RELATION_LIST =
+            new ParameterizedTypeReference<>() {
+            };
 
     private final RestClient restClient;
 
@@ -59,6 +62,13 @@ public class DesignApiClient {
     public List<ModelSummary> listModels(String workspaceKey, String modelType) {
         return fetchAllPages(start -> uri -> uri.path("/workspaces/{ws}/models")
                 .queryParam("modelType", modelType)
+                .queryParam("start", start)
+                .queryParam("size", PAGE_SIZE)
+                .build(workspaceKey));
+    }
+
+    public List<ModelSummary> listAllModels(String workspaceKey) {
+        return fetchAllPages(start -> uri -> uri.path("/workspaces/{ws}/models")
                 .queryParam("start", start)
                 .queryParam("size", PAGE_SIZE)
                 .build(workspaceKey));
@@ -107,6 +117,31 @@ public class DesignApiClient {
                 .retrieve()
                 .body(JsonNode.class));
         return extractContent(model, action);
+    }
+
+    /**
+     * Usage summary of the model: how many packages and other models reference
+     * it. Used to detect models that are safe to delete.
+     */
+    public ModelRelationsSummary getParentRelationsSummary(String workspaceKey, String modelType, String modelKey) {
+        return execute("get relations summary of " + modelType + " model '" + modelKey + "'", () -> restClient.get()
+                .uri("/workspaces/{ws}/models/{type}/{key}/parent-relations-summary",
+                        workspaceKey, modelType, modelKey)
+                .retrieve()
+                .body(ModelRelationsSummary.class));
+    }
+
+    /**
+     * The models and packages that reference this model (its parents).
+     */
+    public List<ModelRelationInfo> getParentRelations(String workspaceKey, String modelType, String modelKey) {
+        List<ModelRelationInfo> relations = execute(
+                "get parent relations of " + modelType + " model '" + modelKey + "'", () -> restClient.get()
+                        .uri("/workspaces/{ws}/models/{type}/{key}/parent-relations",
+                                workspaceKey, modelType, modelKey)
+                        .retrieve()
+                        .body(RELATION_LIST));
+        return relations == null ? List.of() : relations;
     }
 
     /**

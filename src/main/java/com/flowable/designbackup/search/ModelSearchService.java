@@ -65,13 +65,33 @@ public class ModelSearchService {
             if (elements.isEmpty()) {
                 return Optional.empty();
             }
-            return Optional.of(new ModelMatch(model.key(), model.name(), model.modelType(), null, elements));
+            return Optional.of(new ModelMatch(model.key(), model.name(), model.modelType(),
+                    null, elements, resolveApps(request.workspaceKey(), model)));
         }
         if (!request.condition().matches(content.content(), request.term())) {
             return Optional.empty();
         }
         return Optional.of(new ModelMatch(model.key(), model.name(), model.modelType(),
-                extractSnippet(content.content(), request), List.of()));
+                extractSnippet(content.content(), request), List.of(),
+                resolveApps(request.workspaceKey(), model)));
+    }
+
+    /**
+     * The apps a matched model belongs to, derived from its parent relations.
+     * Enrichment only; a relations lookup failure must not drop the match.
+     */
+    private List<AppReference> resolveApps(String workspaceKey, ModelSummary model) {
+        try {
+            return designApiClient.getParentRelations(workspaceKey, model.modelType(), model.key()).stream()
+                    .filter(relation -> relation.packageModelKey() != null && !relation.packageModelKey().isBlank())
+                    .map(relation -> new AppReference(relation.packageModelKey(), relation.packageModelName()))
+                    .distinct()
+                    .toList();
+        } catch (Exception e) {
+            log.warn("Could not resolve apps for {} model '{}': {}",
+                    model.modelType(), model.key(), e.getMessage());
+            return List.of();
+        }
     }
 
     private String extractSnippet(String content, SearchRequest request) {

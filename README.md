@@ -50,6 +50,7 @@ or when scheduled backups are enabled without workspace/target directory.
 | `POST` | `/api/backups` | Run a backup. Body: `{"workspaceKey":"...","targetDirectory":"..."}` |
 | `POST` | `/api/search` | Search models. Body: `{"workspaceKey":"...","modelTypes":["bpmn"],"condition":"NOT_CONTAINS","term":"GEN-902","elementType":"serviceTask"}` |
 | `GET` | `/api/workspaces/{ws}/apps/{app}/service-operations?method=POST&path=/api/customers` | Find service operation by HTTP method + path |
+| `GET` | `/api/workspaces/{ws}/unused-models?modelTypes=bpmn&modelTypes=form` | List models referenced by no app and no other model (deletion candidates). `modelTypes` optional — omit to scan all types |
 | `GET` | `/api/workspaces` | List workspaces |
 | `GET` | `/api/workspaces/{ws}/apps` | List apps of a workspace |
 
@@ -60,6 +61,12 @@ Search semantics:
 - For BPMN and CMMN, every element carrying an `id` is evaluated individually; the optional
   `elementType` narrows by tag name (`serviceTask`), `flowable:type` (`service-registry`)
   or `flowable:extensionId`.
+- Each matched model also reports the **app(s)** it belongs to, derived from the model's
+  parent relations.
+
+Unused-model detection (for cleanup): a model is reported as unused when its
+`parent-relations-summary` shows zero referencing packages **and** zero referencing
+models. Package types (`app`, `plugin`) are roots and are excluded from the scan.
 
 ## Build & run
 

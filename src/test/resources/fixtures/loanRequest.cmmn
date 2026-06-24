@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/CMMN/20151109/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:flowable="http://flowable.org/cmmn" xmlns:cmmndi="http://www.omg.org/spec/CMMN/20151109/CMMNDI" xmlns:dc="http://www.omg.org/spec/CMMN/20151109/DC" xmlns:di="http://www.omg.org/spec/CMMN/20151109/DI" xmlns:design="http://flowable.org/design" targetNamespace="http://flowable.org/cmmn" design:palette="flowable-work-case-palette">
+  <case id="loanRequest" name="Loan Request with auto AI" flowable:initiatorVariableName="initiator" flowable:candidateStarterGroups="flowableUser">
+    <documentation>In this case model, a customer can request a new loan. The loans range from simple loans for e.g. a car, to mortgage loans for buying a house.</documentation>
+    <casePlanModel id="onecaseplanmodel1" name="Case plan model" flowable:formKey="loanApplication1" flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:custom-view-element customViewKey="myCase" menuNavigationSize="expanded"></flowable:custom-view-element>
+        <flowable:default-menu-navigation-size><![CDATA[expanded]]></flowable:default-menu-navigation-size>
+        <flowable:work-form-field-validation><![CDATA[false]]></flowable:work-form-field-validation>
+        <flowable:agentmodel><![CDATA[agentv5]]></flowable:agentmodel>
+        <design:stencilid><![CDATA[CasePlanModel]]></design:stencilid>
+      </extensionElements>
+      <planItem id="planItemExpandedStage_1" name="Initial screening" definitionRef="ExpandedStage_1"></planItem>
+      <planItem id="planItemExpandedStage_40" name="Document review" definitionRef="ExpandedStage_40">
+        <entryCriterion id="EntryCriterion_41" sentryRef="sentryEntryCriterion_41"></entryCriterion>
+      </planItem>
+      <planItem id="planItemExpandedStage_47" name="Risks" definitionRef="ExpandedStage_47">
+        <entryCriterion id="EntryCriterion_68" sentryRef="sentryEntryCriterion_68"></entryCriterion>
+      </planItem>
+      <planItem id="planItemMilestone_70" name="Waiting for user to upload documents" definitionRef="Milestone_70">
+        <entryCriterion id="EntryCriterion_71" sentryRef="sentryEntryCriterion_71"></entryCriterion>
+      </planItem>
+      <planItem id="planItemMilestone_78" name="Id provided" definitionRef="Milestone_78">
+        <entryCriterion id="EntryCriterion_79" sentryRef="sentryEntryCriterion_79"></entryCriterion>
+      </planItem>
+      <planItem id="planItemMilestone_75" name="Pyaslip provided" definitionRef="Milestone_75">
+        <entryCriterion id="EntryCriterion_76" sentryRef="sentryEntryCriterion_76"></entryCriterion>
+      </planItem>
+      <planItem id="planItemProcessTask_28" name="Escalate to customer relations" definitionRef="ProcessTask_28">
+        <entryCriterion id="EntryCriterion_29" sentryRef="sentryEntryCriterion_29"></entryCriterion>
+      </planItem>
+      <planItem id="planItemIntentEventListener_59" name="Customer escalation" definitionRef="IntentEventListener_59"></planItem>
+      <planItem id="planItemIntentEventListener_61" name="payslip and id provided" definitionRef="IntentEventListener_61"></planItem>
+      <planItem id="planItemIntentEventListener_65" name="Cancel Application" definitionRef="IntentEventListener_65"></planItem>
+      <planItem id="planItemIntentEventListener_73" name="Payslip provided" definitionRef="IntentEventListener_73"></planItem>
+      <planItem id="planItemIntentEventListener_74" name="Id provided" definitionRef="IntentEventListener_74"></planItem>
+      <sentry id="sentryExitCriterion_66">
+        <extensionElements>
+          <design:stencilid><![CDATA[ExitCriterion]]></design:stencilid>
+        </extensionElements>
+        <planItemOnPart id="sentryOnPartExitCriterion_66" sourceRef="planItemIntentEventListener_65">
+          <standardEvent>occur</standardEvent>
+        </planItemOnPart>
+      </sentry>
+      <sentry id="sentryEntryCriterion_41">
+        <extensionElements>
+          <design:stencilid><![CDATA[EntryCriterion]]></design:stencilid>
+        </extensionElements>
+        <planItemOnPart id="sentryOnPartEntryCriterion_41" sourceRef="planItemIntentEventListener_61">
+          <standardEvent>occur</standardEvent>
+        </planItemOnPart>
+      </sentry>
+      <sentry id="sentryEntryCriterion_68">
+        <extensionElements>
+          <design:stencilid><![CDATA[EntryCriterion]]></design:stencilid>
+        </extensionElements>
+        <planItemOnPart id="sentryOnPartEntryCriterion_68" sourceRef="planItemExpandedStage_40">
+          <standardEvent>complete</standardEvent>
+        </planItemOnPart>
+      </sentry>
+      <sentry id="sentryEntryCriterion_71">
+        <extensionElements>
+          <design:stencilid><![CDATA[EntryCriterion]]></design:stencilid>
+        </extensionElements>
+        <planItemOnPart id="sentryOnPartEntryCriterion_71" sourceRef="planItemExpandedStage_1">
+          <standardEvent>complete</standardEvent>
+        </planItemOnPart>
+      </sentry>
+      <sentry id="sentryEntryCriterion_79">
+        <extensionElements>
+          <design:stencilid><![CDATA[EntryCriterion]]></design:stencilid>
+        </extensionElements>
+        <planItemOnPart id="sentryOnPartEntryCriterion_79" sourceRef="planItemIntentEventListener_74">
+          <standardEvent>occur</standardEvent>
+        </planItemOnPart>
+      </sentry>
+      <sentry id="sentryEntryCriterion_76">
+        <extensionElements>
+          <design:stencilid><![CDATA[EntryCriterion]]></design:stencilid>
+        </extensionElements>
+        <planItemOnPart id="sentryOnPartEntryCriterion_76" sourceRef="planItemIntentEventListener_73">
+          <standardEvent>occur</standardEvent>
+        </planItemOnPart>
+      </sentry>
+      <sentry id="sentryEntryCriterion_29">
+        <extensionElements>
+          <design:stencilid><![CDATA[EntryCriterion]]></design:stencilid>
+        </extensionElements>
+        <planItemOnPart id="sentryOnPartEntryCriterion_29" sourceRef="planItemIntentEventListener_59">
+          <standardEvent>occur</standardEvent>
+        </planItemOnPart>
+      </sentry>
+      <stage id="ExpandedStage_1" name="Initial screening" autoComplete="true">
+        <extensionElements>
+          <design:stencilid><![CDATA[ExpandedStage]]></design:stencilid>
+          <design:bgcolor><![CDATA[#fffff]]></design:bgcolor>
+          <design:autoexecutewithai><![CDATA[without]]></design:autoexecutewithai>
+        </extensionElements>
+        <planItem id="planItemHumanTask_61" name="Additional check when amount &gt; 10000 USD" definitionRef="HumanTask_61">
+          <itemControl>
+            <manualActivationRule>
+              <extensionElements>
+                <flowable:aiActivationType><![CDATA[ai-automatic]]></flowable:aiActivationType>
+              </extensionElements>
+            </manualActivationRule>
+          </itemControl>
+        </planItem>
+        <planItem id="planItemHumanTask_62" name="Loan application is for a car" definitionRef="HumanTask_62">
+          <itemControl>
+            <manualActivationRule>
+              <extensionElements>
+                <flowable:aiActivationType><![CDATA[ai-suggestion]]></flowable:aiActivationType>
+              </extensionElements>
+            </manualActivationRule>
+          </itemControl>
+        </planItem>
+        <planItem id="planItemHumanTask_63" name="Loan application is for a house" definitionRef="HumanTask_63">
+          <itemControl>
+            <manualActivationRule>
+              <extensionElements>
+                <flowable:aiActivationType><![CDATA[ai-suggestion]]></flowable:aiActivationType>
+              </extensionElements>
+            </manualActivationRule>
+          </itemControl>
+        </planItem>
+        <planItem id="planItemHumanTask_29" name="Manual review of application" definitionRef="HumanTask_29"></planItem>
+        <humanTask id="HumanTask_61" name="Additional check when amount &gt; 10000 USD" flowable:assignee="${initiator}" flowable:formFieldValidation="false">
+          <extensionElements>
+            <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+            <design:stencilid><![CDATA[HumanTask]]></design:stencilid>
+            <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+            <design:bgcolor><![CDATA[#a6dfed]]></design:bgcolor>
+            <flowable:ai-instruction><![CDATA[Enable this task only if the loanAmount is greater than 10000.]]></flowable:ai-instruction>
+          </extensionElements>
+        </humanTask>
+        <humanTask id="HumanTask_62" name="Loan application is for a car" flowable:assignee="${initiator}" flowable:formFieldValidation="false">
+          <extensionElements>
+            <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+            <design:stencilid><![CDATA[HumanTask]]></design:stencilid>
+            <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+            <flowable:ai-instruction><![CDATA[Enable this task only if the reasons clearly expresses the user’s intent to buy or purchase a car/vehicle.]]></flowable:ai-instruction>
+          </extensionElements>
+        </humanTask>
+        <humanTask id="HumanTask_63" name="Loan application is for a house" flowable:assignee="${initiator}" flowable:formFieldValidation="false">
+          <extensionElements>
+            <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+            <design:stencilid><![CDATA[HumanTask]]></design:stencilid>
+            <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+            <flowable:ai-instruction><![CDATA[Enable this task only if the reasons clearly expresses the user’s intent to buy or purchase a house/apartment.]]></flowable:ai-instruction>
+          </extensionElements>
+        </humanTask>
+        <humanTask id="HumanTask_29" name="Manual review of application" flowable:assignee="${initiator}" flowable:formKey="reviewDataForm" flowable:formFieldValidation="false">
+          <extensionElements>
+            <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+            <design:stencilid><![CDATA[HumanTask]]></design:stencilid>
+            <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+          </extensionElements>
+        </humanTask>
+      </stage>
+      <stage id="ExpandedStage_40" name="Document review" autoComplete="true">
+        <extensionElements>
+          <design:stencilid><![CDATA[ExpandedStage]]></design:stencilid>
+        </extensionElements>
+        <planItem id="planItemProcessTask_58" name="Document verification" definitionRef="ProcessTask_58"></planItem>
+        <planItem id="planItemHumanTask_66" name="Secondary Verification" definitionRef="HumanTask_66">
+          <entryCriterion id="EntryCriterion_67" sentryRef="sentryEntryCriterion_67"></entryCriterion>
+        </planItem>
+        <sentry id="sentryEntryCriterion_67">
+          <extensionElements>
+            <flowable:condition group="true" match="all" targetAttribute="condition">
+              <flowable:condition sourceVariableType="variable" sourceName="identityVerified" operator="equals" targetVariableType="value" targetValue="false" targetType="boolean"></flowable:condition>
+            </flowable:condition>
+            <design:stencilid><![CDATA[EntryCriterion]]></design:stencilid>
+          </extensionElements>
+          <planItemOnPart id="sentryOnPartEntryCriterion_67" sourceRef="planItemProcessTask_58">
+            <standardEvent>complete</standardEvent>
+          </planItemOnPart>
+          <ifPart id="sentryIfPart_EntryCriterion_67">
+            <condition><![CDATA[${vars:equals(identityVerified, false)}]]></condition>
+          </ifPart>
+        </sentry>
+        <processTask id="ProcessTask_58" name="Document verification" flowable:fallbackToDefaultTenant="true" flowable:sameDeployment="true">
+          <extensionElements>
+            <design:stencilid><![CDATA[ProcessTask]]></design:stencilid>
+            <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+            <flowable:in source="documents" target="documents"></flowable:in>
+            <flowable:in source="applicantFirstName" target="applicantFirstName"></flowable:in>
+            <flowable:in source="applicantLastName" target="applicantLastName"></flowable:in>
+            <flowable:out source="identityVerified" target="identityVerified"></flowable:out>
+          </extensionElements>
+          <processRefExpression><![CDATA[documentVerification1]]></processRefExpression>
+        </processTask>
+        <humanTask id="HumanTask_66" name="Secondary Verification" flowable:assignee="${initiator}" flowable:formKey="reviewDocumentsTasks1" flowable:formFieldValidation="false">
+          <extensionElements>
+            <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+            <design:stencilid><![CDATA[HumanTask]]></design:stencilid>
+            <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+          </extensionElements>
+        </humanTask>
+      </stage>
+      <stage id="ExpandedStage_47" name="Risks">
+        <extensionElements>
+          <design:stencilid><![CDATA[ExpandedStage]]></design:stencilid>
+        </extensionElements>
+        <planItem id="planItemProcessTask_50" name="Credit check" definitionRef="ProcessTask_50"></planItem>
+        <processTask id="ProcessTask_50" name="Credit check" flowable:fallbackToDefaultTenant="true" flowable:sameDeployment="true">
+          <extensionElements>
+            <design:stencilid><![CDATA[ProcessTask]]></design:stencilid>
+            <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+          </extensionElements>
+          <processRefExpression><![CDATA[creditCheck1]]></processRefExpression>
+        </processTask>
+      </stage>
+      <milestone id="Milestone_70" name="Waiting for user to upload documents" flowable:milestoneVariable="Waiting for user to upload documents">
+        <extensionElements>
+          <design:stencilid><![CDATA[Milestone]]></design:stencilid>
+        </extensionElements>
+      </milestone>
+      <milestone id="Milestone_78" name="Id provided" flowable:milestoneVariable="Id provided">
+        <extensionElements>
+          <design:stencilid><![CDATA[Milestone]]></design:stencilid>
+        </extensionElements>
+      </milestone>
+      <milestone id="Milestone_75" name="Pyaslip provided" flowable:milestoneVariable="Pyaslip provided">
+        <extensionElements>
+          <design:stencilid><![CDATA[Milestone]]></design:stencilid>
+        </extensionElements>
+      </milestone>
+      <processTask id="ProcessTask_28" name="Escalate to customer relations" flowable:fallbackToDefaultTenant="true" flowable:sameDeployment="true">
+        <extensionElements>
+          <design:stencilid><![CDATA[ProcessTask]]></design:stencilid>
+          <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+          <flowable:in source="applicantFirstName" target="applicantFirstName"></flowable:in>
+          <flowable:in source="applicantLastName" target="applicantLastName"></flowable:in>
+        </extensionElements>
+        <processRefExpression><![CDATA[escalateToCustomerRelations1]]></processRefExpression>
+      </processTask>
+      <eventListener id="IntentEventListener_59" name="Customer escalation" flowable:eventType="intent">
+        <documentation>This should not be in the prompt</documentation>
+        <extensionElements>
+          <flowable:ai-instruction><![CDATA[This intent should be triggered when detecting that the loan applicant is angry or frustrated.]]></flowable:ai-instruction>
+          <design:stencilid><![CDATA[IntentEventListener]]></design:stencilid>
+          <design:stencilsuperid><![CDATA[EventListener]]></design:stencilsuperid>
+          <design:completionneutral><![CDATA[false]]></design:completionneutral>
+          <design:display_ref_in_diagram><![CDATA[true]]></design:display_ref_in_diagram>
+        </extensionElements>
+      </eventListener>
+      <eventListener id="IntentEventListener_61" name="payslip and id provided" flowable:eventType="intent">
+        <documentation>This intent must be activated when a payslip and id document are uploaded in this case</documentation>
+        <extensionElements>
+          <design:stencilid><![CDATA[IntentEventListener]]></design:stencilid>
+          <design:stencilsuperid><![CDATA[EventListener]]></design:stencilsuperid>
+          <design:completionneutral><![CDATA[false]]></design:completionneutral>
+          <design:display_ref_in_diagram><![CDATA[true]]></design:display_ref_in_diagram>
+        </extensionElements>
+      </eventListener>
+      <eventListener id="IntentEventListener_65" name="Cancel Application" flowable:eventType="intent">
+        <documentation>Do not include this in the prompt</documentation>
+        <extensionElements>
+          <flowable:ai-instruction><![CDATA[This intent should trigger when the loan applicant indicates they want to cancel the application]]></flowable:ai-instruction>
+          <design:stencilid><![CDATA[IntentEventListener]]></design:stencilid>
+          <design:stencilsuperid><![CDATA[EventListener]]></design:stencilsuperid>
+          <design:completionneutral><![CDATA[false]]></design:completionneutral>
+          <design:display_ref_in_diagram><![CDATA[true]]></design:display_ref_in_diagram>
+        </extensionElements>
+      </eventListener>
+      <eventListener id="IntentEventListener_73" name="Payslip provided" flowable:eventType="intent">
+        <documentation>This intent must be activated when a payslip is uploaded in this case</documentation>
+        <extensionElements>
+          <design:stencilid><![CDATA[IntentEventListener]]></design:stencilid>
+          <design:stencilsuperid><![CDATA[EventListener]]></design:stencilsuperid>
+          <design:display_ref_in_diagram><![CDATA[true]]></design:display_ref_in_diagram>
+        </extensionElements>
+      </eventListener>
+      <eventListener id="IntentEventListener_74" name="Id provided" flowable:eventType="intent">
+        <documentation>This intent must be activated when a id document is uploaded in this case</documentation>
+        <extensionElements>
+          <design:stencilid><![CDATA[IntentEventListener]]></design:stencilid>
+          <design:stencilsuperid><![CDATA[EventListener]]></design:stencilsuperid>
+          <design:display_ref_in_diagram><![CDATA[true]]></design:display_ref_in_diagram>
+        </extensionElements>
+      </eventListener>
+      <exitCriterion id="ExitCriterion_66" sentryRef="sentryExitCriterion_66"></exitCriterion>
+    </casePlanModel>
+  </case>
+  <cmmndi:CMMNDI>
+    <cmmndi:CMMNDiagram id="CMMNDiagram_loanRequest">
+      <cmmndi:CMMNShape id="CMMNShape_onecaseplanmodel1" cmmnElementRef="onecaseplanmodel1">
+        <dc:Bounds height="1054.0" width="1202.0" x="253.24219595982754" y="223.69750452707615"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_ExitCriterion_66" cmmnElementRef="ExitCriterion_66">
+        <dc:Bounds height="28.0" width="18.0" x="1446.2421959598275" y="883.2818217803201"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemExpandedStage_1" cmmnElementRef="planItemExpandedStage_1">
+        <dc:Bounds height="296.0" width="735.0" x="330.9890774567091" y="294.0577520708298"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemHumanTask_61" cmmnElementRef="planItemHumanTask_61">
+        <dc:Bounds height="90.0" width="117.0" x="627.9890774567091" y="383.5577520708298"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemHumanTask_62" cmmnElementRef="planItemHumanTask_62">
+        <dc:Bounds height="80.0" width="115.0" x="834.0776837024873" y="467.9516207381474"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemHumanTask_63" cmmnElementRef="planItemHumanTask_63">
+        <dc:Bounds height="80.0" width="115.0" x="834.0776837024873" y="329.5577520708298"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemHumanTask_29" cmmnElementRef="planItemHumanTask_29">
+        <dc:Bounds height="80.0" width="113.0" x="410.9890774567091" y="388.5577520708298"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemExpandedStage_40" cmmnElementRef="planItemExpandedStage_40">
+        <dc:Bounds height="220.0" width="525.0" x="354.9890774567091" y="640.6975045270761"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_EntryCriterion_41" cmmnElementRef="EntryCriterion_41">
+        <dc:Bounds height="28.0" width="18.0" x="870.9890774567091" y="715.6975045270761"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemProcessTask_58" cmmnElementRef="planItemProcessTask_58">
+        <dc:Bounds height="80.0" width="100.0" x="437.4890774567091" y="707.1975045270761"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemHumanTask_66" cmmnElementRef="planItemHumanTask_66">
+        <dc:Bounds height="80.0" width="100.0" x="668.4890774567091" y="707.1975045270761"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_EntryCriterion_67" cmmnElementRef="EntryCriterion_67">
+        <dc:Bounds height="28.0" width="18.0" x="659.4890774567091" y="733.1975045270761"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemExpandedStage_47" cmmnElementRef="planItemExpandedStage_47">
+        <dc:Bounds height="203.0" width="525.0" x="369.24219595982754" y="964.4117867781316"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_EntryCriterion_68" cmmnElementRef="EntryCriterion_68">
+        <dc:Bounds height="28.0" width="18.0" x="606.1023830700146" y="950.4117867781316"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemProcessTask_50" cmmnElementRef="planItemProcessTask_50">
+        <dc:Bounds height="80.0" width="100.0" x="542.7421959598275" y="1020.4117867781315"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemMilestone_70" cmmnElementRef="planItemMilestone_70">
+        <dc:Bounds height="72.0" width="160.0" x="1275.989077456709" y="524.0577520708298"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_EntryCriterion_71" cmmnElementRef="EntryCriterion_71">
+        <dc:Bounds height="28.0" width="18.0" x="1355.7375182051499" y="510.0577520708298"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemMilestone_78" cmmnElementRef="planItemMilestone_78">
+        <dc:Bounds height="55.0" width="150.0" x="1253.2421959598275" y="730.7849688806783"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_EntryCriterion_79" cmmnElementRef="EntryCriterion_79">
+        <dc:Bounds height="28.0" width="18.0" x="1244.2421959598275" y="744.2849688806783"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemMilestone_75" cmmnElementRef="planItemMilestone_75">
+        <dc:Bounds height="55.0" width="150.0" x="1253.2421959598275" y="654.1247083381747"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_EntryCriterion_76" cmmnElementRef="EntryCriterion_76">
+        <dc:Bounds height="28.0" width="18.0" x="1244.2421959598275" y="667.6247083381747"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemProcessTask_28" cmmnElementRef="planItemProcessTask_28">
+        <dc:Bounds height="80.0" width="100.0" x="1278.2421959598275" y="320.69750452707615"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_EntryCriterion_29" cmmnElementRef="EntryCriterion_29">
+        <dc:Bounds height="28.0" width="18.0" x="1269.2421959598275" y="346.69750452707615"></dc:Bounds>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemIntentEventListener_59" cmmnElementRef="planItemIntentEventListener_59">
+        <dc:Bounds height="30.0" width="30.0" x="1164.2421959598278" y="346.69750452707615"></dc:Bounds>
+        <cmmndi:CMMNLabel>
+          <dc:Bounds height="18.0" width="109.0" x="1127.630802205606" y="389.6427850824602"></dc:Bounds>
+        </cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemIntentEventListener_61" cmmnElementRef="planItemIntentEventListener_61">
+        <dc:Bounds height="30.0" width="30.0" x="1014.4981618729654" y="715.1117456913173"></dc:Bounds>
+        <cmmndi:CMMNLabel>
+          <dc:Bounds height="18.0" width="123.0" x="972.5794508542542" y="772.7895003690719"></dc:Bounds>
+        </cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemIntentEventListener_65" cmmnElementRef="planItemIntentEventListener_65">
+        <dc:Bounds height="30.0" width="30.0" x="1313.2421959598275" y="881.4165411150393"></dc:Bounds>
+        <cmmndi:CMMNLabel>
+          <dc:Bounds height="18.0" width="99.0" x="1278.7421959598275" y="915.4165411150393"></dc:Bounds>
+        </cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemIntentEventListener_73" cmmnElementRef="planItemIntentEventListener_73">
+        <dc:Bounds height="30.0" width="30.0" x="1163.2421959598278" y="666.6247083381747"></dc:Bounds>
+        <cmmndi:CMMNLabel>
+          <dc:Bounds height="18.0" width="88.0" x="1134.2421959598278" y="700.6247083381747"></dc:Bounds>
+        </cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNShape id="CMMNShape_planItemIntentEventListener_74" cmmnElementRef="planItemIntentEventListener_74">
+        <dc:Bounds height="30.0" width="30.0" x="1163.2421959598278" y="743.2849688806783"></dc:Bounds>
+        <cmmndi:CMMNLabel>
+          <dc:Bounds height="18.0" width="59.0" x="1148.7421959598278" y="777.2849688806783"></dc:Bounds>
+        </cmmndi:CMMNLabel>
+      </cmmndi:CMMNShape>
+      <cmmndi:CMMNEdge id="CMMNEdge_Connector_67" cmmnElementRef="planItemIntentEventListener_65" targetCMMNElementRef="ExitCriterion_66">
+        <di:extension>
+          <flowable:docker type="source" x="15.0" y="15.0"></flowable:docker>
+          <flowable:docker type="target" x="9.0" y="14.0"></flowable:docker>
+        </di:extension>
+        <di:waypoint x="1343.2421959598275" y="896.4165411150393"></di:waypoint>
+        <di:waypoint x="1394.7421959598275" y="896.4165411150393"></di:waypoint>
+        <di:waypoint x="1394.7421959598275" y="897.2818217803201"></di:waypoint>
+        <di:waypoint x="1446.2421959598275" y="897.2818217803201"></di:waypoint>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNEdge>
+      <cmmndi:CMMNEdge id="CMMNEdge_Connector_77" cmmnElementRef="planItemIntentEventListener_73" targetCMMNElementRef="EntryCriterion_76">
+        <di:extension>
+          <flowable:docker type="source" x="15.0" y="15.0"></flowable:docker>
+          <flowable:docker type="target" x="9.0" y="14.0"></flowable:docker>
+        </di:extension>
+        <di:waypoint x="1193.2421959598275" y="681.6247083381747"></di:waypoint>
+        <di:waypoint x="1244.2421959598275" y="681.6247083381747"></di:waypoint>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNEdge>
+      <cmmndi:CMMNEdge id="CMMNEdge_Connector_69" cmmnElementRef="planItemExpandedStage_40" targetCMMNElementRef="EntryCriterion_68">
+        <di:extension>
+          <flowable:docker type="source" x="263.0" y="110.0"></flowable:docker>
+          <flowable:docker type="target" x="9.0" y="14.0"></flowable:docker>
+        </di:extension>
+        <di:waypoint x="617.489077456709" y="860.6975045270761"></di:waypoint>
+        <di:waypoint x="617.489077456709" y="905.5546456526039"></di:waypoint>
+        <di:waypoint x="615.1023830700145" y="905.5546456526039"></di:waypoint>
+        <di:waypoint x="615.1023830700145" y="950.4117867781316"></di:waypoint>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNEdge>
+      <cmmndi:CMMNEdge id="CMMNEdge_Connector_68" cmmnElementRef="planItemProcessTask_58" targetCMMNElementRef="EntryCriterion_67">
+        <di:extension>
+          <flowable:docker type="source" x="50.0" y="40.0"></flowable:docker>
+          <flowable:docker type="target" x="9.0" y="14.0"></flowable:docker>
+        </di:extension>
+        <di:waypoint x="537.489077456709" y="747.1975045270761"></di:waypoint>
+        <di:waypoint x="659.489077456709" y="747.1975045270761"></di:waypoint>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNEdge>
+      <cmmndi:CMMNEdge id="CMMNEdge_Connector_80" cmmnElementRef="planItemIntentEventListener_74" targetCMMNElementRef="EntryCriterion_79">
+        <di:extension>
+          <flowable:docker type="source" x="15.0" y="15.0"></flowable:docker>
+          <flowable:docker type="target" x="9.0" y="14.0"></flowable:docker>
+        </di:extension>
+        <di:waypoint x="1193.2421959598275" y="758.2849688806783"></di:waypoint>
+        <di:waypoint x="1244.2421959598275" y="758.2849688806783"></di:waypoint>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNEdge>
+      <cmmndi:CMMNEdge id="CMMNEdge_Connector_72" cmmnElementRef="planItemExpandedStage_1" targetCMMNElementRef="EntryCriterion_71">
+        <di:extension>
+          <flowable:docker type="source" x="368.0" y="148.0"></flowable:docker>
+          <flowable:docker type="target" x="9.0" y="14.0"></flowable:docker>
+        </di:extension>
+        <di:waypoint x="1065.989077456709" y="442.0577520708298"></di:waypoint>
+        <di:waypoint x="1364.7375182051499" y="442.0577520708298"></di:waypoint>
+        <di:waypoint x="1364.7375182051499" y="510.0577520708298"></di:waypoint>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNEdge>
+      <cmmndi:CMMNEdge id="CMMNEdge_Connector_60" cmmnElementRef="planItemIntentEventListener_59" targetCMMNElementRef="EntryCriterion_29">
+        <di:extension>
+          <flowable:docker type="source" x="15.0" y="15.0"></flowable:docker>
+          <flowable:docker type="target" x="9.0" y="14.0"></flowable:docker>
+        </di:extension>
+        <di:waypoint x="1194.2421959598278" y="361.69750452707615"></di:waypoint>
+        <di:waypoint x="1231.7421959598278" y="361.69750452707615"></di:waypoint>
+        <di:waypoint x="1231.7421959598278" y="360.69750452707615"></di:waypoint>
+        <di:waypoint x="1269.2421959598275" y="360.69750452707615"></di:waypoint>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNEdge>
+      <cmmndi:CMMNEdge id="CMMNEdge_Connector_63" cmmnElementRef="planItemIntentEventListener_61" targetCMMNElementRef="EntryCriterion_41">
+        <di:extension>
+          <flowable:docker type="source" x="15.0" y="15.0"></flowable:docker>
+          <flowable:docker type="target" x="9.0" y="14.0"></flowable:docker>
+        </di:extension>
+        <di:waypoint x="1014.4981618729654" y="730.1117456913173"></di:waypoint>
+        <di:waypoint x="952.2436196648373" y="730.1117456913174"></di:waypoint>
+        <di:waypoint x="952.2436196648373" y="729.6975045270761"></di:waypoint>
+        <di:waypoint x="888.9890774567091" y="729.6975045270761"></di:waypoint>
+        <cmmndi:CMMNLabel></cmmndi:CMMNLabel>
+      </cmmndi:CMMNEdge>
+    </cmmndi:CMMNDiagram>
+  </cmmndi:CMMNDI>
+</definitions>

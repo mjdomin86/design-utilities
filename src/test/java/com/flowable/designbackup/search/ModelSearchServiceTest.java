@@ -2,6 +2,7 @@ package com.flowable.designbackup.search;
 
 import com.flowable.designbackup.client.DesignApiClient;
 import com.flowable.designbackup.client.DesignApiException;
+import com.flowable.designbackup.client.ModelRelationInfo;
 import com.flowable.designbackup.client.ModelSummary;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,43 @@ class ModelSearchServiceTest {
         try (var stream = ModelSearchServiceTest.class.getResourceAsStream("/fixtures/creditCheck1.bpmn")) {
             bpmnXml = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         }
+    }
+
+    @Test
+    void matchesAreEnrichedWithDistinctAppsFromParentRelations() {
+        // Arrange
+        when(client.listModels("ws1", "form")).thenReturn(List.of(
+                new ModelSummary("1", "form1", "Form 1", "form")));
+        when(client.getModelContent("ws1", "form", "form1")).thenReturn("has GEN-902");
+        when(client.getParentRelations("ws1", "form", "form1")).thenReturn(List.of(
+                new ModelRelationInfo("app902", "App 902", "proc1", "Process 1", "bpmn"),
+                new ModelRelationInfo("app902", "App 902", "proc2", "Process 2", "bpmn"),
+                new ModelRelationInfo(null, null, "wsModel", "Workspace Model", "bpmn")));
+
+        // Act
+        SearchResponse response = service.search(new SearchRequest(
+                "ws1", List.of("form"), SearchCondition.CONTAINS, "GEN-902", null));
+
+        // Assert
+        assertThat(response.matches()).hasSize(1);
+        assertThat(response.matches().getFirst().apps())
+                .extracting(AppReference::key)
+                .containsExactly("app902");
+    }
+
+    @Test
+    void appResolutionFailureDoesNotDropTheMatch() {
+        when(client.listModels("ws1", "form")).thenReturn(List.of(
+                new ModelSummary("1", "form1", "Form 1", "form")));
+        when(client.getModelContent("ws1", "form", "form1")).thenReturn("has GEN-902");
+        when(client.getParentRelations("ws1", "form", "form1"))
+                .thenThrow(new DesignApiException("boom", 500, null));
+
+        SearchResponse response = service.search(new SearchRequest(
+                "ws1", List.of("form"), SearchCondition.CONTAINS, "GEN-902", null));
+
+        assertThat(response.matches()).hasSize(1);
+        assertThat(response.matches().getFirst().apps()).isEmpty();
     }
 
     @Test
