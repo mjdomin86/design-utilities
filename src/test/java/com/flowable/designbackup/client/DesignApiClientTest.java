@@ -7,9 +7,11 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -195,5 +197,77 @@ class DesignApiClientTest {
         assertThatThrownBy(() -> client.exportApp("ws1", "app902"))
                 .isInstanceOf(DesignApiException.class)
                 .satisfies(e -> assertThat(((DesignApiException) e).getStatusCode()).isEqualTo(401));
+    }
+
+    @Test
+    void createWorkspaceSendsKeyAndNameAndReturnsCreatedWorkspace() {
+        server.expect(requestTo(BASE + "/workspaces"))
+                .andExpect(method(org.springframework.http.HttpMethod.POST))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("""
+                        {"key":"ws-restored","name":"Restored workspace"}
+                        """))
+                .andRespond(withSuccess("""
+                        {"id":"1","key":"ws-restored","name":"Restored workspace"}
+                        """, MediaType.APPLICATION_JSON));
+
+        ModelSummary created = client.createWorkspace("ws-restored", "Restored workspace");
+
+        assertThat(created.key()).isEqualTo("ws-restored");
+        assertThat(created.name()).isEqualTo("Restored workspace");
+        server.verify();
+    }
+
+    @Test
+    void importAppSendsZipAsMultipartWithOverwriteStrategy() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/import-app"))
+                .andExpect(method(org.springframework.http.HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(content().multipartDataContains(Map.of("importStrategy", "overwriteOnClash")))
+                .andRespond(withSuccess());
+
+        client.importApp("ws1", new byte[] {0x50, 0x4b, 0x03, 0x04}, "app902.zip");
+
+        server.verify();
+    }
+
+    @Test
+    void importAppWrapsFailureInDesignApiException() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/import-app"))
+                .andRespond(withUnauthorizedRequest());
+
+        assertThatThrownBy(() -> client.importApp("ws1", new byte[] {0x50, 0x4b}, "app902.zip"))
+                .isInstanceOf(DesignApiException.class)
+                .satisfies(e -> assertThat(((DesignApiException) e).getStatusCode()).isEqualTo(401));
+    }
+
+    @Test
+    void getModelContentNodeReturnsRawContentNodeUnflattened() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/models/service/svc1?includeContent=true"))
+                .andRespond(withSuccess("""
+                        {"id":"1","key":"svc1","modelType":"service","content":{"type":"REST"}}
+                        """, MediaType.APPLICATION_JSON));
+
+        tools.jackson.databind.JsonNode content = client.getModelContentNode("ws1", "service", "svc1");
+
+        assertThat(content.isObject()).isTrue();
+        assertThat(content.get("type").asString()).isEqualTo("REST");
+        server.verify();
+    }
+
+    @Test
+    void updateModelContentSendsContentAndNewVersionFalse() {
+        server.expect(requestTo(BASE + "/workspaces/ws1/models/bpmn/creditCheck1/content"))
+                .andExpect(method(org.springframework.http.HttpMethod.PUT))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("""
+                        {"content":"<definitions/>","newVersion":false}
+                        """))
+                .andRespond(withSuccess());
+
+        client.updateModelContent("ws1", "bpmn", "creditCheck1",
+                tools.jackson.databind.node.StringNode.valueOf("<definitions/>"));
+
+        server.verify();
     }
 }

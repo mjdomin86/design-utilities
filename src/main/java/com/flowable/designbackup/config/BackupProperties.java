@@ -19,6 +19,13 @@ public record BackupProperties(
         String allowedBaseDir,
         @DefaultValue Scheduled scheduled) {
 
+    /**
+     * Name of {@link #allowedBaseDir()}, referenced in error messages raised
+     * by {@link com.flowable.designbackup.backup.AllowedDirectoryGuard} for
+     * both backup (write) and restore (read) directories.
+     */
+    public static final String ALLOWED_BASE_DIR_PROPERTY = "flowable.design.backup.allowed-base-dir";
+
     public record Scheduled(
             @DefaultValue("false") boolean enabled,
             @DefaultValue("0 0 2 * * *") String cron,

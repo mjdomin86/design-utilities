@@ -7,7 +7,6 @@ import com.flowable.designbackup.config.BackupProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -17,9 +16,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 /**
@@ -68,8 +65,8 @@ public class BackupService {
     }
 
     private Path prepareBackupDirectory(String workspaceKey, String targetDirectory, Instant startedAt) {
-        Path target = Path.of(targetDirectory).toAbsolutePath().normalize();
-        validateWithinAllowedBaseDir(target);
+        Path target = AllowedDirectoryGuard.resolve(targetDirectory, backupProperties.allowedBaseDir(),
+                BackupProperties.ALLOWED_BASE_DIR_PROPERTY);
         Path backupDir = target.resolve(workspaceKey).resolve(TIMESTAMP_FORMAT.format(startedAt));
         try {
             Files.createDirectories(backupDir);
@@ -77,44 +74,6 @@ public class BackupService {
             throw new UncheckedIOException("Could not create backup directory " + backupDir, e);
         }
         return backupDir;
-    }
-
-    private void validateWithinAllowedBaseDir(Path target) {
-        String allowedBaseDir = backupProperties.allowedBaseDir();
-        if (!StringUtils.hasText(allowedBaseDir)) {
-            return;
-        }
-        Path allowed = resolveSymlinks(Path.of(allowedBaseDir).toAbsolutePath());
-        if (!resolveSymlinks(target).startsWith(allowed)) {
-            throw new IllegalArgumentException(
-                    "Target directory " + target + " is outside the allowed base directory " + allowed
-                            + " (flowable.design.backup.allowed-base-dir)");
-        }
-    }
-
-    /**
-     * Resolves symlinks on the deepest existing ancestor so a link inside the
-     * allowed base directory cannot redirect the backup outside of it.
-     */
-    private static Path resolveSymlinks(Path path) {
-        Path existing = path.normalize();
-        Deque<Path> missingSegments = new ArrayDeque<>();
-        while (existing != null && !Files.exists(existing)) {
-            missingSegments.push(existing.getFileName());
-            existing = existing.getParent();
-        }
-        if (existing == null) {
-            return path.normalize();
-        }
-        try {
-            Path resolved = existing.toRealPath();
-            for (Path segment : missingSegments) {
-                resolved = resolved.resolve(segment);
-            }
-            return resolved;
-        } catch (IOException e) {
-            return path.normalize();
-        }
     }
 
     private AppBackupResult backupSingleApp(String workspaceKey, ModelSummary app, Path backupDir) {

@@ -14,6 +14,10 @@
         <button class="tab-button" data-tab="operations">Operation Lookup</button>
         <button class="tab-button" data-tab="unused">Unused Models</button>
         <button class="tab-button" data-tab="backup">Backup</button>
+        <button class="tab-button" data-tab="restore">Restore</button>
+        <button class="tab-button" data-tab="jackson-migration">Jackson Migration</button>
+        <button class="tab-button" data-tab="service-defaults">Service Defaults</button>
+        <button class="tab-button" data-tab="settings">Settings</button>
     </nav>
 </header>
 
@@ -113,6 +117,100 @@
         </form>
         <div id="backup-status" class="status"></div>
         <div id="backup-results"></div>
+    </section>
+
+    <section id="tab-restore" class="tab">
+        <form id="restore-form">
+            <div class="form-row">
+                <label for="restore-source">Source directory</label>
+                <input id="restore-source" type="text"
+                       placeholder="/path/to/backups/ws1/20260611-121530" required>
+                <small>Folder containing the app .zip exports (and manifest.json, if present)</small>
+            </div>
+            <div class="form-row">
+                <label>
+                    <input type="checkbox" id="restore-create-workspace">
+                    Create a new workspace
+                </label>
+            </div>
+            <div class="form-row" id="restore-existing-workspace-row">
+                <label for="restore-workspace">Workspace</label>
+                <select id="restore-workspace">
+                    <option value="">(default workspace)</option>
+                </select>
+            </div>
+            <div class="form-row" id="restore-new-workspace-row" style="display:none">
+                <label for="restore-new-workspace-key">New workspace key</label>
+                <input id="restore-new-workspace-key" type="text" placeholder="e.g. ws-restored">
+            </div>
+            <div class="form-row" id="restore-new-workspace-name-row" style="display:none">
+                <label for="restore-new-workspace-name">New workspace name <em>(optional)</em></label>
+                <input id="restore-new-workspace-name" type="text" placeholder="e.g. Restored workspace">
+            </div>
+            <button type="submit">Restore</button>
+        </form>
+        <div id="restore-status" class="status"></div>
+        <div id="restore-results"></div>
+    </section>
+
+    <section id="tab-jackson-migration" class="tab">
+        <form id="jackson-scan-form">
+            <div class="form-row">
+                <label for="jackson-workspace">Workspace</label>
+                <select id="jackson-workspace" required></select>
+            </div>
+            <button type="submit">Scan for Jackson 2 references</button>
+        </form>
+        <div id="jackson-scan-status" class="status"></div>
+        <div id="jackson-scan-results"></div>
+        <form id="jackson-fix-form" style="display:none">
+            <button type="submit">Fix selected models</button>
+        </form>
+        <div id="jackson-fix-status" class="status"></div>
+        <div id="jackson-fix-results"></div>
+    </section>
+
+    <section id="tab-service-defaults" class="tab">
+        <form id="defaults-form">
+            <div class="form-row">
+                <label for="defaults-workspace">Workspace</label>
+                <select id="defaults-workspace" required></select>
+            </div>
+            <div class="form-row">
+                <label for="defaults-app">App</label>
+                <select id="defaults-app" required></select>
+            </div>
+            <div class="form-row">
+                <label for="defaults-value">Default value</label>
+                <input id="defaults-value" type="text" value="0" pattern="-?\d+" required>
+                <small>Used when a number output parameter (Integer, Long, Big integer, Big decimal, Double)
+                    is missing or null in the response. Parameters that already have a default keep it.</small>
+            </div>
+            <button type="submit">Add default values</button>
+        </form>
+        <div id="defaults-status" class="status"></div>
+        <div id="defaults-results"></div>
+    </section>
+
+    <section id="tab-settings" class="tab">
+        <form id="token-form">
+            <div class="form-row">
+                <label>Current auth mode</label>
+                <span id="token-mode" class="muted">loading…</span>
+            </div>
+            <div class="form-row">
+                <label>Token status</label>
+                <span id="token-current" class="muted">loading…</span>
+            </div>
+            <div class="form-row">
+                <label for="token-value">New OAuth2 bearer token</label>
+                <textarea id="token-value" rows="4" required
+                          placeholder="Paste the new Flowable Design access token here"></textarea>
+                <small>Replaces the token immediately, no restart needed.</small>
+            </div>
+            <button type="submit">Save token</button>
+        </form>
+        <div id="token-status" class="status"></div>
     </section>
 </main>
 

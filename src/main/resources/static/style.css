@@ -52,12 +52,18 @@ form {
 .form-row label { font-weight: 600; font-size: 0.85rem; }
 .form-row small, .muted { color: var(--muted); }
 
-input, select {
+input, select, textarea {
     padding: 0.45rem;
     border: 1px solid var(--border);
     border-radius: 5px;
     font-size: 0.9rem;
     max-width: 28rem;
+}
+
+textarea {
+    width: 100%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    resize: vertical;
 }
 
 button[type="submit"] {
@@ -91,6 +97,8 @@ button[type="submit"] {
     font-size: 0.75rem;
     text-transform: uppercase;
 }
+
+.badge-warning { background: var(--error); }
 
 table { border-collapse: collapse; width: 100%; margin-top: 0.5rem; font-size: 0.85rem; }
 th, td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; }
